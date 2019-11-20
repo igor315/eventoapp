@@ -1,42 +1,37 @@
 package com.eventoapi.eventoapi.models;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotEmpty;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.eventoapi.eventoapi.security.SecurityUtils;
 
 @Entity
-public class Usuario implements UserDetails, Serializable {
+public class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	private String login;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+
+	private String email;
 
 	private String nomeCompleto;
 
 	@NotEmpty
 	private String senha;
 
-	@ManyToMany
-	@JoinTable(name = "usuarios_roles", joinColumns = @JoinColumn(name = "usuario_id", referencedColumnName = "login"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "nomeRole"))
-	private List<Role> roles;
-
-	public String getLogin() {
-		return login;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
-	public void setLogin(String login) {
-		this.login = login;
+	public String getEmail() {
+		return email;
 	}
 
 	public String getNomeCompleto() {
@@ -55,54 +50,41 @@ public class Usuario implements UserDetails, Serializable {
 		this.senha = senha;
 	}
 
-	public List<Role> getRoles() {
-		return roles;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public void setRoles(List<Role> roles) {
-		this.roles = roles;
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return (Collection<? extends GrantedAuthority>) this.roles;
+	public Long getId() {
+		return id;
 	}
 
 	@Override
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return this.senha;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
 	}
 
 	@Override
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return this.login;
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Usuario other = (Usuario) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		return true;
 	}
 
-	@Override
-	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return true;
+	public void encryptPassword() {
+		senha = SecurityUtils.encrypt(senha);
 	}
 
 }
